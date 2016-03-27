@@ -1,0 +1,44 @@
+#!/bin/bash
+
+CERT1=$1
+CERT2=$2
+
+CERT1_TEMP='/tmp/cert1.txt'
+CERT2_TEMP='/tmp/cert2.txt'
+
+if ! which openssl >/dev/null; then
+    # OpenSSL binary doesn't exists
+    echo "It looks like the 'openssl' command does not exist on your system, or you don't have access to it."
+    echo "Install it first to use this tool."
+    echo "  on Red Hat / CentOS: yum install openssl"
+    echo "  on Ubuntu / Debian: apt-get install openssl"
+fi
+
+if [ "$CERT1" == "$CERT2" ]; then
+    echo "It looks like you're trying to diff the same file, are you sure that's right? They should be the same."
+    exit 1
+fi
+
+# Read the certificates and write to a temporary location
+CERT_INFO="openssl x509 -subject -issuer -dates -alias -noout"
+if ! $CERT_INFO -in $CERT1 > $CERT1_TEMP 2>/dev/null ; then
+    echo "Could not accurately parse the first parameter ($CERT1). Is this a real certificate?"
+    echo "The following should return certificate info:"
+    echo "$ openssl x509 -text -noout -in $CERT1"
+    exit 1
+fi
+
+if ! $CERT_INFO -in $CERT2 > $CERT2_TEMP 2>/dev/null ; then
+    echo "Could not accurately parse the second parameter ($CERT1). Is this a real certificate?"
+    echo "The following should return certificate info:"
+    echo "$ openssl x509 -text -noout -in $CERT2"
+    exit 1
+fi
+
+# Diff the results
+if ! diff -c $CERT1_TEMP $CERT2_TEMP; then
+    echo "No differences, the data (FQDN, SAN, ...) is the same."
+fi
+
+# Cleanup
+rm -f $CERT1_TEMP $CERT2_TEMP
