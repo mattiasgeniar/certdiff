@@ -3,8 +3,8 @@
 CERT1=$1
 CERT2=$2
 
-CERT1_TEMP='/tmp/cert1.txt'
-CERT2_TEMP='/tmp/cert2.txt'
+CERT1_TEMP="$(mktemp)"
+CERT2_TEMP="$(mktemp)"
 
 if ! which openssl >/dev/null; then
     # OpenSSL binary doesn't exists
