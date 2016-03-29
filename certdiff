@@ -12,6 +12,7 @@ if ! which openssl >/dev/null; then
     echo "Install it first to use this tool."
     echo "  on Red Hat / CentOS: yum install openssl"
     echo "  on Ubuntu / Debian: apt-get install openssl"
+    exit 1
 fi
 
 if [ "$CERT1" == "$CERT2" ]; then
