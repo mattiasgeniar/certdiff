@@ -22,24 +22,24 @@ fi
 
 # Read the certificates and write to a temporary location
 CERT_INFO="openssl x509 -subject -issuer -dates -alias -noout"
-if ! $CERT_INFO -in $CERT1 > $CERT1_TEMP 2>/dev/null ; then
+if ! $CERT_INFO -in "$CERT1" > "$CERT1_TEMP" 2>/dev/null ; then
     echo "Could not accurately parse the first parameter ($CERT1). Is this a real certificate?"
     echo "The following should return certificate info:"
     echo "$ openssl x509 -text -noout -in $CERT1"
     exit 1
 fi
 
-if ! $CERT_INFO -in $CERT2 > $CERT2_TEMP 2>/dev/null ; then
-    echo "Could not accurately parse the second parameter ($CERT1). Is this a real certificate?"
+if ! $CERT_INFO -in "$CERT2" > "$CERT2_TEMP" 2>/dev/null ; then
+    echo "Could not accurately parse the second parameter ($CERT2). Is this a real certificate?"
     echo "The following should return certificate info:"
     echo "$ openssl x509 -text -noout -in $CERT2"
     exit 1
 fi
 
 # Diff the results
-if ! diff -c $CERT1_TEMP $CERT2_TEMP; then
+if ! diff -c "$CERT1_TEMP" "$CERT2_TEMP"; then
     echo "No differences, the data (FQDN, SAN, ...) is the same."
 fi
 
 # Cleanup
-rm -f $CERT1_TEMP $CERT2_TEMP
+rm -f "$CERT1_TEMP" "$CERT2_TEMP"
