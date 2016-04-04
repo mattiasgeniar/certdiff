@@ -16,7 +16,7 @@ if ! which openssl >/dev/null; then
 fi
 
 if [ "$CERT1" == "$CERT2" ]; then
-    echo "It looks like you're trying to diff the same file, are you sure that's right? They should be the same."
+    echo "It looks like you're trying to diff the same file, are you sure that's right? They should be different."
     exit 1
 fi
 
