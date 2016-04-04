@@ -1,10 +1,7 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 CERT1=$1
 CERT2=$2
-
-CERT1_TEMP="$(mktemp)"
-CERT2_TEMP="$(mktemp)"
 
 if ! which openssl >/dev/null; then
     # OpenSSL binary doesn't exists
@@ -15,21 +12,23 @@ if ! which openssl >/dev/null; then
     exit 1
 fi
 
-if [ "$CERT1" == "$CERT2" ]; then
+if [ "${CERT1}" == "${CERT2}" ]; then
     echo "It looks like you're trying to diff the same file, are you sure that's right? They should be the same."
     exit 1
 fi
 
 # Read the certificates and write to a temporary location
-CERT_INFO="openssl x509 -subject -issuer -dates -alias -noout"
-if ! $CERT_INFO -in $CERT1 > $CERT1_TEMP 2>/dev/null ; then
+CERT_INFO='openssl x509 -subject -issuer -dates -alias -noout'
+CERT1_OUT=$(${CERT_INFO} -in ${CERT1} 2>/dev/null)
+if [ $? -ne 0 ]; then
     echo "Could not accurately parse the first parameter ($CERT1). Is this a real certificate?"
     echo "The following should return certificate info:"
     echo "$ openssl x509 -text -noout -in $CERT1"
     exit 1
 fi
 
-if ! $CERT_INFO -in $CERT2 > $CERT2_TEMP 2>/dev/null ; then
+CERT2_OUT=$(${CERT_INFO} -in ${CERT2} 2>/dev/null)
+if [ $? -ne 0 ]; then
     echo "Could not accurately parse the second parameter ($CERT1). Is this a real certificate?"
     echo "The following should return certificate info:"
     echo "$ openssl x509 -text -noout -in $CERT2"
@@ -37,9 +36,9 @@ if ! $CERT_INFO -in $CERT2 > $CERT2_TEMP 2>/dev/null ; then
 fi
 
 # Diff the results
-if ! diff -c $CERT1_TEMP $CERT2_TEMP; then
+DIFF=$(diff -y <(echo "${CERT1_OUT}") <(echo "${CERT2_OUT}"))
+if [ $? -ne 0 ]; then
+    echo "${DIFF}"
+else
     echo "No differences, the data (FQDN, SAN, ...) is the same."
 fi
-
-# Cleanup
-rm -f $CERT1_TEMP $CERT2_TEMP
