@@ -13,7 +13,7 @@ if ! which openssl >/dev/null; then
 fi
 
 if [ "${CERT1}" == "${CERT2}" ]; then
-    echo "It looks like you're trying to diff the same file, are you sure that's right? They should be the same."
+    echo "It looks like you're trying to diff the same file, are you sure that's right? They should be different."
     exit 1
 fi
 
@@ -29,7 +29,7 @@ fi
 
 CERT2_OUT=$(${CERT_INFO} -in ${CERT2} 2>/dev/null)
 if [ $? -ne 0 ]; then
-    echo "Could not accurately parse the second parameter ($CERT1). Is this a real certificate?"
+    echo "Could not accurately parse the second parameter ($CERT2). Is this a real certificate?"
     echo "The following should return certificate info:"
     echo "$ openssl x509 -text -noout -in $CERT2"
     exit 1
